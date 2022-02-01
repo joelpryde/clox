@@ -70,6 +70,9 @@ int main(int argc, const char* argv[])
 {
     initVM();
 
+    // Required to display to stdout with CLion on Windows
+    setbuf(stdout, 0);
+
     if (argc == 1)
         repl();
     else if (argc == 2)

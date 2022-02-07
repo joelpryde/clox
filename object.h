@@ -31,6 +31,7 @@ struct ObjString
     Obj obj;
     int length;
     const char* chars;
+    uint32_t hash;
 };
 
 ObjString* takeString(const char* chars, int length);

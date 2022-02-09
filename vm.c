@@ -129,6 +129,18 @@ static InterpretResult run()
             case OP_TRUE:       push(BOOL_VAL(true));   break;
             case OP_FALSE:      push(BOOL_VAL(false));   break;
             case OP_POP:        pop();                  break;
+            case OP_GET_GLOBAL:
+            {
+                ObjString* name = READ_STRING();
+                Value value;
+                if (!tableGet(&vm.globals, name, &value))
+                {
+                    runtimeError("Undefined variable '%s'", name->chars);
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                push(value);
+                break;
+            }
             case OP_DEFINE_GLOBAL:
             {
                 ObjString* name = READ_STRING();
@@ -185,8 +197,7 @@ static InterpretResult run()
                 printf("\n");
                 break;
             case OP_RETURN:
-                printValue(pop());
-                printf("\n");
+                // Exit interpreter
                 return INTERPRET_OK;
         }
     }

@@ -77,6 +77,7 @@ static void errorAt(Token* token, const char* message)
         fprintf(stderr, " at '%.*s'", token->length, token->start);
 
     fprintf(stderr, ": %s\n", message);
+    fprintf(stdout, ": %s\n", message);
     parser.hadError = true;
 }
 
@@ -214,6 +215,9 @@ static void endCompiler()
 static void expression();
 static void declaration();
 static void statement();
+static void varDeclaration();
+static void beginScope();
+static void endScope();
 static ParseRule* getRule(TokenType type);
 
 static void parsePrecedence(Precedence precedence)
@@ -320,6 +324,60 @@ static void expressionStatement()
     emitByte(OP_POP);
 }
 
+static void forStatement()
+{
+    beginScope();
+    consume(TOKEN_LEFT_PAREN, "Expect '(' after 'for'.");
+
+    // initializer clause
+    if (!match(TOKEN_SEMICOLON))
+    {
+        if (match(TOKEN_VAR))
+            varDeclaration();
+        else
+            expressionStatement();
+    }
+
+    int loopStart = currentChunk()->count;
+
+    // condition clause
+    int exitJump = -1;
+    if (!match(TOKEN_SEMICOLON))
+    {
+        expression();
+        consume(TOKEN_SEMICOLON, "Expect ';' after loop condition.");
+
+        // jump out if condition is false
+        exitJump = emitJump(OP_JUMP_IF_FALSE);
+        emitByte(OP_POP);
+    }
+
+    // increment clause
+    if (!match(TOKEN_RIGHT_PAREN))
+    {
+        int bodyJump = emitJump(OP_JUMP);
+        int incrementStart = currentChunk()->count;
+        expression();
+        emitByte(OP_POP);
+        consume(TOKEN_RIGHT_PAREN, "Expect ')' after for clauses.");
+
+        emitLoop(loopStart);
+        loopStart = incrementStart;
+        patchJump(bodyJump);
+    }
+
+    statement();
+    emitLoop(loopStart);
+
+    if (exitJump != -1)
+    {
+        patchJump(exitJump);
+        emitByte(OP_POP);
+    }
+
+    endScope();
+}
+
 static void beginScope()
 {
     current->scopeDepth++;
@@ -361,6 +419,8 @@ static void statement()
 {
     if (match(TOKEN_PRINT))
         printStatement();
+    else if (match(TOKEN_FOR))
+        forStatement();
     else if (match(TOKEN_IF))
         ifstatement();
     else if (match(TOKEN_WHILE))
@@ -457,7 +517,7 @@ static void and_(bool canAssign)
     patchJump(endJump);
 }
 
-static void variableDeclaration()
+static void varDeclaration()
 {
     uint8_t global = parseVariable("Expect variable name.");
 
@@ -502,7 +562,7 @@ static void synchronize()
 static void declaration()
 {
     if (match(TOKEN_VAR))
-        variableDeclaration();
+        varDeclaration();
     else
         statement();
 

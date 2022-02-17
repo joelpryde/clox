@@ -79,9 +79,11 @@ ObjString* copyString(const char* chars, int length)
     return allocateString(heapChars, length, hash);
 }
 
+extern FILE* printOutput;
+
 static void printFunction(ObjFunction* function)
 {
-    printf("<fn %s>", function->name->chars);
+    fprintf(printOutput, "<fn %s>", function->name->chars);
 }
 
 void printObject(Value value)
@@ -92,7 +94,7 @@ void printObject(Value value)
             printFunction(AS_FUNCTION(value));
             break;
         case OBJ_STRING:
-            printf("%s", AS_CSTRING(value));
+            fprintf(printOutput, "%s", AS_CSTRING(value));
             break;
     }
 

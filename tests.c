@@ -5,23 +5,29 @@
 #include "utest.h"
 #include "vm.h"
 
-extern FILE* printOutput;
+extern char testPrintOutput[512];
 
 UTEST_STATE();
 
 bool checkPrintOutput(const char* checkStr)
 {
-    const int printOutput_length = ftell(printOutput) + 1;
-    rewind(printOutput);
-    char buffer[printOutput_length];
-    fgets(buffer, printOutput_length, printOutput);
-    rewind(printOutput);
-
-    return (strcmp(buffer, checkStr) == 0);
+    return (strncmp(testPrintOutput, checkStr, strlen(checkStr)) == 0);
 }
 
 UTEST(interpret, print) {
     InterpretResult result = interpret("print 1;");
     ASSERT_TRUE(result == INTERPRET_OK);
     ASSERT_TRUE(checkPrintOutput("1"));
+}
+
+UTEST(interpret, while_) {
+    InterpretResult result = interpret("var a=0; while (a<3) a = a + 1; print a;");
+    ASSERT_TRUE(result == INTERPRET_OK);
+    ASSERT_TRUE(checkPrintOutput("3"));
+}
+
+UTEST(interpret, for_) {
+    InterpretResult result = interpret("var a=0; for (var t = 3; t > 0; t = t - 1) a = a + 1; print a;");
+    ASSERT_TRUE(result == INTERPRET_OK);
+    ASSERT_TRUE(checkPrintOutput("3"));
 }

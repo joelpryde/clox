@@ -110,7 +110,7 @@ static InterpretResult run()
         for (Value* slot = vm.stack; slot < vm.stackTop; slot++)
         {
             printf("[ ");
-            printValue(*slot);
+            printValue(*slot, false);
             printf("  ]");
         }
         printf("\n");
@@ -218,7 +218,7 @@ static InterpretResult run()
                 push(NUMBER_VAL(-AS_NUMBER(pop())));
                 break;
             case OP_PRINT:
-                printValue(pop());
+                printValue(pop(), true);
                 printf("\n");
                 break;
             case OP_JUMP:

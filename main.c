@@ -8,7 +8,7 @@
 #include "vm.h"
 #include "utest.h"
 
-FILE* printOutput = NULL;
+bool useTestPrintOutput = false;
 
 static void repl()
 {
@@ -70,7 +70,6 @@ static void runFile(const char* path)
 
 int main(int argc, const char* argv[])
 {
-    printOutput = stdout;
     initVM();
 
     // Required to display to stdout with CLion on Windows
@@ -82,7 +81,7 @@ int main(int argc, const char* argv[])
     {
         if (strcmp(argv[1], "--test") == 0)
         {
-            printOutput = tmpfile();
+            useTestPrintOutput = true;
             utest_main(argc, argv);
         }
         else

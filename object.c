@@ -79,23 +79,23 @@ ObjString* copyString(const char* chars, int length)
     return allocateString(heapChars, length, hash);
 }
 
-static void printFunction(ObjFunction* function)
+static void printFunction(bool forTest, ObjFunction* function)
 {
     if (function->name == NULL)
-        printf("<script>");
+        doPrint(forTest, "<script>");
     else
-        printf("<fn %s>", function->name->chars);
+        doPrint(forTest, "<fn %s>", function->name->chars);
 }
 
-void printObject(Value value)
+void printObject(bool forTest, Value value)
 {
     switch (OBJ_TYPE(value))
     {
         case OBJ_FUNCTION:
-            printFunction(AS_FUNCTION(value));
+            printFunction(forTest, AS_FUNCTION(value));
             break;
         case OBJ_STRING:
-            printf("%s", AS_CSTRING(value));
+            doPrint(forTest, "%s", AS_CSTRING(value));
             break;
     }
 }

@@ -39,14 +39,14 @@ void freeValueArray(ValueArray* array)
 extern bool useTestPrintOutput;
 char testPrintOutput[512];
 
-void outputValue(bool testPrint, const char* str, ...)
+void doPrint(bool testPrint, const char* str, ...)
 {
-    va_list arglist;
-    va_start(arglist, str);
+    va_list argList;
+    va_start(argList, str);
     if (testPrint)
-        vsprintf(testPrintOutput, str, arglist);
+        vsprintf(testPrintOutput, str, argList);
     else
-        vprintf(str, arglist);
+        vprintf(str, argList);
 }
 
 void printValue(Value value, bool forTests)
@@ -55,16 +55,16 @@ void printValue(Value value, bool forTests)
     switch (value.type)
     {
         case VAL_BOOL:
-            outputValue(testOutput, AS_BOOL(value) ? "true" : "false");
+            doPrint(testOutput, AS_BOOL(value) ? "true" : "false");
             break;
         case VAL_NIL:
-            outputValue(testOutput, "nil");
+            doPrint(testOutput, "nil");
             break;
         case VAL_NUMBER:
-            outputValue(testOutput, "%g", AS_NUMBER(value));
+            doPrint(testOutput, "%g", AS_NUMBER(value));
             break;
         case VAL_OBJ:
-            printObject(value);
+            printObject(testOutput, value);
             break;
     }
 }

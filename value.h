@@ -53,6 +53,7 @@ bool valuesEqual(Value a, Value b);
 void initValueArray(ValueArray* array);
 void writeValueArray(ValueArray* array, Value value);
 void freeValueArray(ValueArray* array);
+void doPrint(bool testPrint, const char* str, ...);
 void printValue(Value value, bool forTests);
 
 #endif //CLOX_VALUE_H

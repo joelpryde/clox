@@ -142,7 +142,7 @@ static TokenType identifierType()
                 {
                     case 'a': return checkKeyword(2, 3, "else", TOKEN_FALSE);
                     case 'o': return checkKeyword(2, 1, "r", TOKEN_FOR);
-                    case 'U': return checkKeyword(2, 3, "n", TOKEN_FUN);
+                    case 'u': return checkKeyword(2, 1, "n", TOKEN_FUN);
                 }
             }
             break;

@@ -49,7 +49,7 @@ struct ObjString
 ObjFunction* newFunction();
 ObjString* takeString(const char* chars, int length);
 ObjString* copyString(const char* chars, int length);
-void printObject(Value value);
+void printObject(bool forTest, Value value);
 
 static inline bool isObjType(Value value, ObjType objType)
 {

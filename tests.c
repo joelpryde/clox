@@ -31,3 +31,9 @@ UTEST(interpret, for_) {
     ASSERT_TRUE(result == INTERPRET_OK);
     ASSERT_TRUE(checkPrintOutput("3"));
 }
+
+UTEST(interpret, fun_declaration) {
+    InterpretResult result = interpret("fun someFunction() { print \"blah\"; } print someFunction;");
+    ASSERT_TRUE(result == INTERPRET_OK);
+    ASSERT_TRUE(checkPrintOutput("<fn someFunction>"));
+}

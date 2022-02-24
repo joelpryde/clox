@@ -43,3 +43,9 @@ UTEST(interpret, fun_call) {
     ASSERT_TRUE(result == INTERPRET_OK);
     ASSERT_TRUE(checkPrintOutput("blah"));
 }
+
+UTEST(interpret, fun_return) {
+    InterpretResult result = interpret("fun someFunction() { return \"blah\"; } print someFunction();");
+    ASSERT_TRUE(result == INTERPRET_OK);
+    ASSERT_TRUE(checkPrintOutput("blah"));
+}

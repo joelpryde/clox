@@ -49,3 +49,9 @@ UTEST(interpret, fun_return) {
     ASSERT_TRUE(result == INTERPRET_OK);
     ASSERT_TRUE(checkPrintOutput("blah"));
 }
+
+UTEST(interpret, native_clock) {
+    InterpretResult result = interpret("print clock();");
+    ASSERT_TRUE(result == INTERPRET_OK);
+    ASSERT_TRUE(checkPrintOutput("0"));
+}

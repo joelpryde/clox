@@ -55,3 +55,17 @@ UTEST(interpret, native_clock) {
     ASSERT_TRUE(result == INTERPRET_OK);
     ASSERT_TRUE(checkPrintOutput("0"));
 }
+
+UTEST(interpret, upvalues) {
+    InterpretResult result = interpret(
+"fun outer() {"
+    "var x = \"outside\";"
+    "fun inner() {"
+        "print x;"
+    "}"
+    "inner();"
+"}"
+"outer();");
+    ASSERT_TRUE(result == INTERPRET_OK);
+    ASSERT_TRUE(checkPrintOutput("outside"));
+}

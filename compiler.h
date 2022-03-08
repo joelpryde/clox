@@ -8,6 +8,7 @@
 #include "object.h"
 #include "vm.h"
 
+void resetCompilerForTests();
 ObjFunction* compile(const char* source);
 
 #endif //CLOX_COMPILER_H

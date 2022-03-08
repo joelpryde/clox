@@ -47,6 +47,7 @@ typedef struct
 {
     Token name;
     int depth;
+    bool isCaptured;
 } Local;
 
 typedef struct
@@ -61,7 +62,7 @@ typedef enum
     TYPE_SCRIPT
 } FunctionType;
 
-typedef struct
+typedef struct Compiler
 {
     struct Compiler* enclosing;
     ObjFunction* function;
@@ -75,6 +76,13 @@ typedef struct
 Parser parser;
 Compiler* current = NULL;
 Chunk* compilingChunk;
+
+void resetCompilerForTests()
+{
+    current = NULL;
+    compilingChunk = NULL;
+    memset(&parser, 0, sizeof(Parser));
+}
 
 static Chunk* currentChunk()
 {
@@ -214,6 +222,9 @@ static void patchJump(int offset)
 
 static void initCompiler(Compiler* compiler, FunctionType type)
 {
+    // !!! Locals were not being correctly reset without this
+    memset(compiler, 0, sizeof(Compiler));
+
     compiler->enclosing = (struct Compiler*)current;
     compiler->function = NULL;
     compiler->type = type;
@@ -226,6 +237,7 @@ static void initCompiler(Compiler* compiler, FunctionType type)
 
     Local* local = &current->locals[current->localCount++];
     local->depth = 0;
+    local->isCaptured = false;
     local->name.start = "";
     local->name.length = 0;
 }
@@ -240,7 +252,7 @@ static ObjFunction* endCompiler()
       disassembleChunk(currentChunk(), function->name != NULL ? function->name->chars : "<script>");
 #endif
 
-    current = (Compiler*)current->enclosing;
+    current = current->enclosing;
     return function;
 }
 
@@ -254,7 +266,6 @@ static void endScope();
 static uint8_t parseVariable(const char*);
 static void markInitialized();
 static void defineVariable(uint8_t global);
-static uint8_t parseVariable(const char* errorMessage);
 static uint8_t argumentList();
 static ParseRule* getRule(TokenType type);
 
@@ -491,7 +502,10 @@ static void endScope()
     while (current->localCount > 0 &&
         current->locals[current->localCount - 1].depth > current->scopeDepth)
     {
-        emitByte(OP_POP);
+        if (current->locals[current->localCount - 1].isCaptured)
+            emitByte(OP_CLOSE_UPVALUE);
+        else
+            emitByte(OP_POP);
         current->localCount--;
     }
 }
@@ -554,6 +568,7 @@ static void addLocal(Token name)
     Local* local = &current->locals[current->localCount++];
     local->name = name;
     local->depth = -1;
+    local->isCaptured = false;
 }
 
 static bool identifiersEqual(Token* a, Token* b)
@@ -766,11 +781,14 @@ static int resolveUpvalue(Compiler* compiler, Token* name)
     if (compiler->enclosing == NULL)
         return -1;
 
-    int local = resolveLocal((Compiler*)compiler->enclosing, name);
+    int local = resolveLocal(compiler->enclosing, name);
     if (local != -1)
-        return addUpvalue(compiler, (uint8_t)local, true);
+    {
+        compiler->enclosing->locals[local].isCaptured = true;
+        return addUpvalue(compiler, (uint8_t) local, true);
+    }
 
-    int upvalue = resolveUpvalue((Compiler*)compiler->enclosing, name);
+    int upvalue = resolveUpvalue(compiler->enclosing, name);
     if (upvalue != -1)
         return addUpvalue(compiler, (uint8_t)upvalue, false);
 

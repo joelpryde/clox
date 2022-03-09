@@ -29,6 +29,7 @@ bool tableDelete(Table* table, ObjString* key);
 void tableAddAll(Table* from, Table* to);
 
 ObjString* tableFindInternedString(Table* table, const char* chars, int length, uint32_t hash);
+void markTable(Table* table);
 
 
 #endif //CLOX_TABLE_H

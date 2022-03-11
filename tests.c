@@ -36,6 +36,13 @@ UTEST(interpret, print) {
     ASSERT_TRUE(checkPrintOutput("1"));
 }
 
+UTEST(interpret, concat_strings) {
+    reset();
+    InterpretResult result = interpret("print \"jaba\" + \"hut\";");
+    ASSERT_TRUE(result == INTERPRET_OK);
+    ASSERT_TRUE(checkPrintOutput("jabahut"));
+}
+
 UTEST(interpret, while_) {
     reset();
     InterpretResult result = interpret("var a=0; while (a<3) a = a + 1; print a;");

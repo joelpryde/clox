@@ -105,3 +105,8 @@ UTEST_F(TestFixture, interpret_closed_upvalues) {
     );
     utest_fixture->expected = "param";
 }
+
+UTEST_F(TestFixture, interpret_class_declaration) {
+    utest_fixture->result = interpret("class Brioche {} print Brioche;");
+    utest_fixture->expected = "Brioche";
+}

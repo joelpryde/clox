@@ -12,25 +12,21 @@ UTEST_STATE();
 
 static bool setupRun = false;
 
-static void reset()
-{
-    if (setupRun)
-    {
-        resetCompilerForTests();
-        freeVM();
-    }
-
-    initVM();
-    setupRun = true;
-}
-
 struct TestFixture {
     const char* expected;
     InterpretResult result;
 };
 
 UTEST_F_SETUP(TestFixture) {
-    reset();
+    if (setupRun)
+    {
+        freeVM();
+        resetCompilerForTests();
+    }
+    else
+        setupRun = true;
+
+    initVM();
 }
 
 UTEST_F_TEARDOWN(TestFixture) {
@@ -109,4 +105,9 @@ UTEST_F(TestFixture, interpret_closed_upvalues) {
 UTEST_F(TestFixture, interpret_class_declaration) {
     utest_fixture->result = interpret("class Brioche {} print Brioche;");
     utest_fixture->expected = "Brioche";
+}
+
+UTEST_F(TestFixture, interpret_class_instance) {
+    utest_fixture->result = interpret("class Brioche {} print Brioche();");
+    utest_fixture->expected = "Brioche instance";
 }

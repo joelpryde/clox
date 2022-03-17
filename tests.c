@@ -111,3 +111,13 @@ UTEST_F(TestFixture, interpret_class_instance) {
     utest_fixture->result = interpret("class Brioche {} print Brioche();");
     utest_fixture->expected = "Brioche instance";
 }
+
+UTEST_F(TestFixture, interpret_class_getter_setter) {
+    utest_fixture->result = interpret(
+            "class Pair {}"
+            "var pair = Pair();"
+            "pair.first = 1;"
+            "pair.second = 2;"
+            "print pair.first + pair.second;");
+    utest_fixture->expected = "3";
+}

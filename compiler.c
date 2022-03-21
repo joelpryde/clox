@@ -269,6 +269,7 @@ static void markInitialized();
 static void defineVariable(uint8_t global);
 static uint8_t argumentList();
 static ParseRule* getRule(TokenType type);
+static void namedVariable(Token name, bool canAssign);
 
 static void parsePrecedence(Precedence precedence)
 {
@@ -400,6 +401,15 @@ static void function(FunctionType type)
     }
 }
 
+static void method()
+{
+    consume(TOKEN_IDENTIFIER, "Expect method name.");
+    uint8_t constant = identifierConstant(&parser.previous);
+    FunctionType type = TYPE_FUNCTION;
+    function(type);
+    emitBytes(OP_METHOD, constant);
+}
+
 static bool identifiersEqual(Token* a, Token* b)
 {
     if (a->length != b->length)
@@ -452,14 +462,21 @@ static void funDeclaration()
 static void classDeclaration()
 {
     consume(TOKEN_IDENTIFIER, "Expect class name.");
+    Token className = parser.previous;
     uint8_t nameConstant = identifierConstant(&parser.previous);
     declareVariable();
 
     emitBytes(OP_CLASS, nameConstant);
     defineVariable(nameConstant);
 
+    namedVariable(className, false);
     consume(TOKEN_LEFT_BRACE, "Expect '{' before class body.");
+    while (!check(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF))
+    {
+        method();
+    }
     consume(TOKEN_RIGHT_BRACE, "Expect '}' before class body.");
+    emitByte(OP_POP);
 }
 
 static void printStatement()
@@ -835,16 +852,16 @@ static void namedVariable(Token name, bool canAssign)
         setOp = OP_SET_LOCAL;
     }
     else if ((arg = resolveUpvalue(current, &name)) != -1)
-    {
-        getOp = OP_GET_UPVALUE;
-        setOp = OP_SET_UPVALUE;
-    }
-    else
-    {
-        arg = identifierConstant(&name);
-        getOp = OP_GET_GLOBAL;
-        setOp = OP_SET_GLOBAL;
-    }
+        {
+            getOp = OP_GET_UPVALUE;
+            setOp = OP_SET_UPVALUE;
+        }
+        else
+        {
+            arg = identifierConstant(&name);
+            getOp = OP_GET_GLOBAL;
+            setOp = OP_SET_GLOBAL;
+        }
 
     if (canAssign && match(TOKEN_EQUAL))
     {

@@ -77,7 +77,7 @@ int main(int argc, const char* argv[])
 
     if (argc == 1)
         repl();
-    else if (argc == 2)
+    else if (argc >= 2)
     {
         if (strcmp(argv[1], "--test") == 0)
         {

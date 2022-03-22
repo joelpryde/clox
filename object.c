@@ -28,6 +28,14 @@ static Obj* allocateObject(size_t size, ObjType type)
     return object;
 }
 
+ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method)
+{
+    ObjBoundMethod* bound = ALLOCATE_OBJ(ObjBoundMethod, OBJ_BOUND_METHOD);
+    bound->receiver = receiver;
+    bound->method = method;
+    return bound;
+}
+
 ObjClass* newClass(ObjString* name)
 {
     ObjClass* klass = ALLOCATE_OBJ(ObjClass, OBJ_CLASS);
@@ -146,6 +154,9 @@ void printObject(bool forTest, Value value)
 {
     switch (OBJ_TYPE(value))
     {
+        case OBJ_BOUND_METHOD:
+            printFunction(forTest, AS_BOUND_METHOD(value)->method->function);
+            break;
         case OBJ_CLASS:
             doPrint(forTest, AS_CLASS(value)->name->chars);
             break;

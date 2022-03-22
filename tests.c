@@ -121,3 +121,13 @@ UTEST_F(TestFixture, interpret_class_getter_setter) {
             "print pair.first + pair.second;");
     utest_fixture->expected = "3";
 }
+
+UTEST_F(TestFixture, interpret_method_reference) {
+    utest_fixture->result = interpret(
+            "class Scone {"
+            "   topping(first, second) { print \"scone with \" + first + \" and \" + second; }"
+            "}"
+            "var scone = Scone();"
+            "scone.topping(\"berries\", \"cream\");");
+    utest_fixture->expected = "scone with berries and cream";
+}

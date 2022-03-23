@@ -122,7 +122,7 @@ UTEST_F(TestFixture, interpret_class_getter_setter) {
     utest_fixture->expected = "3";
 }
 
-UTEST_F(TestFixture, interpret_method_reference) {
+UTEST_F(TestFixture, interpret_class_method_reference) {
     utest_fixture->result = interpret(
             "class Scone {"
             "   topping(first, second) { print \"scone with \" + first + \" and \" + second; }"
@@ -130,4 +130,14 @@ UTEST_F(TestFixture, interpret_method_reference) {
             "var scone = Scone();"
             "scone.topping(\"berries\", \"cream\");");
     utest_fixture->expected = "scone with berries and cream";
+}
+
+UTEST_F(TestFixture, interpret_class_this) {
+    utest_fixture->result = interpret(
+            "class Class {"
+            "   method() { print this; }"
+            "}"
+            "var aClass = Class();"
+            "aClass.method();");
+    utest_fixture->expected = "Class instance";
 }

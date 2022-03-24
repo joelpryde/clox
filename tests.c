@@ -141,3 +141,14 @@ UTEST_F(TestFixture, interpret_class_this) {
             "aClass.method();");
     utest_fixture->expected = "Class instance";
 }
+
+UTEST_F(TestFixture, interpret_class_initializer) {
+    utest_fixture->result = interpret(
+            "class Class {"
+            "   init() { this.message = \"hello\"; }"
+            "   method() { print this.message; }"
+            "}"
+            "var aClass = Class();"
+            "aClass.method();");
+    utest_fixture->expected = "hello";
+}

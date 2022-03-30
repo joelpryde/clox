@@ -152,3 +152,15 @@ UTEST_F(TestFixture, interpret_class_initializer) {
             "aClass.method();");
     utest_fixture->expected = "hello";
 }
+
+UTEST_F(TestFixture, interpret_super_method_call) {
+    utest_fixture->result = interpret(
+            "class Super {"
+            "   testSuper() { print \"test\"; }"
+            "}"
+            "class Class < Super {"
+            "}"
+            "var aClass = Class();"
+            "aClass.testSuper();");
+    utest_fixture->expected = "test";
+}

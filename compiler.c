@@ -290,6 +290,7 @@ static void defineVariable(uint8_t global);
 static uint8_t argumentList();
 static ParseRule* getRule(TokenType type);
 static void namedVariable(Token name, bool canAssign);
+static void variable(bool canAssign);
 
 static void parsePrecedence(Precedence precedence)
 {
@@ -500,6 +501,18 @@ static void classDeclaration()
     ClassCompiler classCompiler;
     classCompiler.enclosing = currentClass;
     currentClass = & classCompiler;
+
+    if (match(TOKEN_LESS))
+    {
+        consume(TOKEN_IDENTIFIER, "Expect superclass name.");
+        variable(false);
+
+        if (identifiersEqual(&className, &parser.previous))
+            error("A class can't inherit from itself");
+
+        namedVariable(className, false);
+        emitByte(OP_INHERIT);
+    }
 
     namedVariable(className, false);
     consume(TOKEN_LEFT_BRACE, "Expect '{' before class body.");

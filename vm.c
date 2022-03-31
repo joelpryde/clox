@@ -110,7 +110,7 @@ static bool call(ObjClosure* closure, int argCount)
 {
     if (argCount != closure->function->arity)
     {
-        runtimeError("Expected %d arguments but go %d.", closure->function->arity, argCount);
+        runtimeError("Expected %d arguments but got %d.", closure->function->arity, argCount);
         return false;
     }
 
@@ -304,6 +304,9 @@ static InterpretResult run()
         push(valueType(a op b));                        \
     } while(false)
 
+#ifdef DEBUG_TRACE_EXECUTION
+    printf("=== Tracing execution ===\n");
+#endif
     for (;;)
     {
 #ifdef DEBUG_TRACE_EXECUTION
@@ -424,6 +427,15 @@ static InterpretResult run()
                 push(value);
                 break;
             }
+            case OP_GET_SUPER:
+            {
+                ObjString* name = READ_STRING();
+                ObjClass* superclass = AS_CLASS(pop());
+
+                if (!bindMethod(superclass, name))
+                    return INTERPRET_RUNTIME_ERROR;
+                break;
+            }
             case OP_EQUAL:
             {
                 Value b = pop();
@@ -505,6 +517,16 @@ static InterpretResult run()
                 ObjString* method = READ_STRING();
                 int argCount = READ_BYTE();
                 if (!invoke(method, argCount))
+                    return INTERPRET_RUNTIME_ERROR;
+                frame = &vm.frames[vm.frameCount - 1];
+                break;
+            }
+            case OP_SUPER_INVOKE:
+            {
+                ObjString* method = READ_STRING();
+                int argCount = READ_BYTE();
+                ObjClass* superclass = AS_CLASS(pop());
+                if (!invokeFromClass(superclass, method, argCount))
                     return INTERPRET_RUNTIME_ERROR;
                 frame = &vm.frames[vm.frameCount - 1];
                 break;

@@ -330,10 +330,10 @@ static InterpretResult run()
                 printf("\n");
                 break;
             }
-            case OP_NIL:        push(NIL_VAL());        break;
+            case OP_NIL:        push(NIL_VAL);          break;
             case OP_TRUE:       push(BOOL_VAL(true));   break;
-            case OP_FALSE:      push(BOOL_VAL(false));   break;
-            case OP_POP:        pop();                  break;
+            case OP_FALSE:      push(BOOL_VAL(false));  break;
+            case OP_POP:        pop();                        break;
             case OP_GET_LOCAL:
             {
                 uint8_t slot = READ_BYTE();

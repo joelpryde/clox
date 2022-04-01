@@ -52,6 +52,16 @@ void doPrint(bool testPrint, const char* str, ...)
 void printValue(Value value, bool forTests)
 {
     bool testOutput = forTests && useTestPrintOutput;
+#ifdef NAN_BOXING
+    if (IS_BOOL(value))
+        doPrint(testOutput, AS_BOOL(value) ? "true" : "false");
+    else if (IS_NIL(value))
+        doPrint(testOutput, "nil");
+    else if (IS_NUMBER(value))
+        doPrint(testOutput, "%g", AS_NUMBER(value));
+    else if (IS_OBJ(value))
+        printObject(testOutput, value);
+#else
     switch (value.type)
     {
         case VAL_BOOL:
@@ -67,10 +77,18 @@ void printValue(Value value, bool forTests)
             printObject(testOutput, value);
             break;
     }
+#endif
 }
 
 bool valuesEqual(Value a, Value b)
 {
+#ifdef NAN_BOXING
+    // special case for (nan == nan) => false
+    if (IS_NUMBER(a) && IS_NUMBER(b))
+        return AS_NUMBER(a) == AS_NUMBER(b);
+
+    return a == b;
+#else
     if (a.type != b.type)
         return false;
     switch (a.type)
@@ -81,4 +99,5 @@ bool valuesEqual(Value a, Value b)
         case VAL_OBJ:       return AS_OBJ(a) == AS_OBJ(b);
         default: return false;
     }
+#endif
 }
